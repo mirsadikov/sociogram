@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - client
+      - api-service
+      - socket-service
+    networks:
+      - main-network
+
+  postgres:
+    image: postgres:alpine
+    environment:
+      POSTGRES_DB: socialnetwork
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - database-network
+
+  redis:
+    image: redis:alpine
+    volumes:
+      - redis-data:/data
+    networks:
+      - database-network
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    depends_on:
+      - api-service
+      - socket-service
+    networks:
+      - main-network
+
+  api-service:
+    build:
+      context: ./api-service
+      dockerfile: Dockerfile
+    volumes:
+      - ./api-service:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DATABASE_URL=postgres://postgres:123456@postgres:5432/socialnetwork
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - main-network
+      - database-network
+
+  socket-service:
+    build:
+      context: ./socket-service
+      dockerfile: Dockerfile
+    volumes:
+      - ./socket-service:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - main-network
+
+networks:
+  main-network:
+  database-network:
+
+
+volumes:
+  postgres-data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data/postgres
+      o: bind
+  redis-data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data/redis
+      o: bind
