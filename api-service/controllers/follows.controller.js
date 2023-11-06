@@ -11,20 +11,19 @@ async function followUser(req, res, next) {
     if (!userToFollow) throw new CustomError('User not found', 404);
     if (userToFollow.id === req.user.id) throw new CustomError('You cannot follow yourself', 400);
 
-    const isFollowing = await prisma.userFollow.findFirst({
+    await prisma.userFollow.upsert({
       where: {
+        follower_id_following_id: {
+          follower_id: req.user.id,
+          following_id: userToFollow.id,
+        },
+      },
+      update: {},
+      create: {
         follower_id: req.user.id,
         following_id: userToFollow.id,
       },
     });
-
-    if (!isFollowing)
-      await prisma.userFollow.create({
-        data: {
-          follower_id: req.user.id,
-          following_id: userToFollow.id,
-        },
-      });
 
     res.json({ message: `You are now following ${userToFollow.name}` });
   } catch (error) {
@@ -43,20 +42,12 @@ async function unfollowUser(req, res, next) {
     if (userToUnfollow.id === req.user.id)
       throw new CustomError('You cannot unfollow yourself', 400);
 
-    const isFollowing = await prisma.userFollow.findFirst({
+    await prisma.userFollow.deleteMany({
       where: {
         follower_id: req.user.id,
         following_id: userToUnfollow.id,
       },
     });
-
-    if (isFollowing)
-      await prisma.userFollow.deleteMany({
-        where: {
-          follower_id: req.user.id,
-          following_id: userToUnfollow.id,
-        },
-      });
 
     res.json({ message: `You are not following ${userToUnfollow.name} anymore` });
   } catch (error) {

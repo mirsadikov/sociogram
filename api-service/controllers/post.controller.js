@@ -34,7 +34,7 @@ async function getOwnPosts(req, res, next) {
       // like count
       include: {
         _count: {
-          select: { PostLike: true },
+          select: { likes: true },
         },
       },
     });
@@ -43,7 +43,7 @@ async function getOwnPosts(req, res, next) {
       count: posts.length,
       posts: posts.map((post) => ({
         ...post,
-        like_count: post._count.PostLike,
+        like_count: post._count.likes,
         _count: undefined,
       })),
     });
@@ -104,14 +104,14 @@ async function getPost(req, res, next) {
 
     const post = await prisma.post.findUnique({
       where: { id },
-      include: { author: true, _count: { select: { PostLike: true } } },
+      include: { author: true, _count: { select: { likes: true } } },
     });
 
     if (!post) throw new CustomError('Post not found', 404);
 
     res.json({
       ...post,
-      like_count: post._count.PostLike,
+      like_count: post._count.likes,
       _count: undefined,
     });
   } catch (error) {
@@ -136,7 +136,7 @@ async function getFeed(req, res, next) {
       },
       include: {
         author: { select: { id: true, name: true, email: true } },
-        _count: { select: { PostLike: true } },
+        _count: { select: { likes: true } },
       },
     });
 
@@ -144,7 +144,7 @@ async function getFeed(req, res, next) {
       count: posts.length,
       posts: posts.map((post) => ({
         ...post,
-        like_count: post._count.PostLike,
+        like_count: post._count.likes,
         _count: undefined,
       })),
     });

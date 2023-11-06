@@ -22,7 +22,9 @@ model User {
   posts         Post[]
   followers     UserFollow[] @relation("Follower")
   following     UserFollow[] @relation("Following")
-  PostLike      PostLike[]
+  liked_posts   PostLike[]
+  chats         UserChat[]
+  messages      Message[]
 }
 
 model UserFollow {
@@ -31,6 +33,8 @@ model UserFollow {
   following_id String
   following    User   @relation("Follower", fields: [following_id], references: [id])
   follower_id  String
+
+  @@unique([follower_id, following_id])
 }
 
 model Post {
@@ -39,7 +43,7 @@ model Post {
   author     User       @relation(fields: [author_id], references: [id])
   author_id  String
   created_at DateTime   @default(now())
-  PostLike   PostLike[]
+  likes      PostLike[]
 }
 
 model PostLike {
@@ -51,4 +55,30 @@ model PostLike {
   liked_at DateTime @default(now())
 
   @@unique([post_id, user_id])
+}
+
+model Chat {
+  id         String     @id @default(uuid())
+  created_at DateTime   @default(now())
+  messages   Message[]
+  users      UserChat[]
+}
+
+model UserChat {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [user_id], references: [id])
+  user_id    String
+  chat       Chat     @relation(fields: [chat_id], references: [id])
+  chat_id    String
+  created_at DateTime @default(now())
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  content    String
+  created_at DateTime @default(now())
+  chat       Chat     @relation(fields: [chat_id], references: [id])
+  chat_id    String
+  author     User     @relation(fields: [author_id], references: [id])
+  author_id  String
 }
