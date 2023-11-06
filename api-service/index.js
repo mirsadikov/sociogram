@@ -1,9 +1,25 @@
-const http = require('http');
+import express from 'express';
+import cookieParser from 'cookie-parser';
+import userRoute from './routes/user.route.js';
+import postRoute from './routes/post.route.js';
+import followRoute from './routes/follows.route.js';
+import errorHandler from './middlewares/error.middleware.js';
 
-const server = http.createServer((req, res) => {
-  res.end('Hello from api-service');
+const app = express();
+
+app.use(cookieParser());
+app.use(express.json());
+app.use('/user', userRoute);
+app.use('/post', postRoute);
+app.use('/follow', followRoute);
+
+app.get('/', (req, res) => {
+  res.end('OK');
 });
 
-server.listen(process.env.PORT, () => {
-  console.log('Server listening on port 3000');
+app.use(errorHandler);
+
+app.listen(process.env.PORT, (err) => {
+  if (err) console.error(err);
+  console.log(`Server listening on port ${process.env.PORT}`);
 });

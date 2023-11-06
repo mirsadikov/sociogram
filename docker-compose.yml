@@ -17,18 +17,28 @@ services:
   postgres:
     image: postgres:alpine
     environment:
-      POSTGRES_DB: socialnetwork
+      POSTGRES_DB: sociogram
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123456
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - ./data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - database-network
 
   redis:
     image: redis:alpine
     volumes:
-      - redis-data:/data
+      - ./data/redis:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - database-network
 
@@ -58,10 +68,12 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3000
-      - DATABASE_URL=postgres://postgres:123456@postgres:5432/socialnetwork
+      - DATABASE_URL=postgres://postgres:123456@postgres:5432/sociogram
     depends_on:
-      - postgres
-      - redis
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
     networks:
       - main-network
       - database-network
@@ -85,18 +97,3 @@ services:
 networks:
   main-network:
   database-network:
-
-
-volumes:
-  postgres-data:
-    driver: local
-    driver_opts:
-      type: none
-      device: ./data/postgres
-      o: bind
-  redis-data:
-    driver: local
-    driver_opts:
-      type: none
-      device: ./data/redis
-      o: bind
