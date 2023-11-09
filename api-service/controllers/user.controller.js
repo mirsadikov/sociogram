@@ -163,7 +163,7 @@ async function logout(req, res, next) {
   }
 }
 
-// @Public
+// @Private
 async function getNewAccessToken(req, res, next) {
   try {
     const { id, email, refresh_token } = req.user;
@@ -189,11 +189,59 @@ async function getNewAccessToken(req, res, next) {
 
     res.json({ access_token });
   } catch (error) {
+    res.clearCookie('refresh_token');
     next(error);
   }
 }
 
-// @Helpers
+// @Private
+async function searchUsers(req, res, next) {
+  try {
+    const { search } = req.query;
+    const { id } = req.user;
+
+    const users = await prisma.user.findMany({
+      where: {
+        OR: [
+          { name: { contains: search, mode: 'insensitive' } },
+          { email: { contains: search, mode: 'insensitive' } },
+        ],
+        NOT: { id },
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        bio: true,
+        created_at: true,
+        followers: {
+          select: { id: true },
+          where: {
+            follower_id: {
+              equals: id,
+            },
+          },
+        },
+      },
+      take: 20,
+    });
+
+    res.json({
+      count: users.length,
+      users: users
+        .map((user) => ({
+          ...user,
+          is_following: user.followers.length > 0,
+          followers: undefined,
+        }))
+        .sort((a, b) => b.is_following - a.is_following),
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+// @Helper
 async function updateRefreshToken(id, refreshToken) {
   const hashedRefreshToken = await argon.hash(refreshToken);
   await prisma.user.update({
@@ -202,4 +250,4 @@ async function updateRefreshToken(id, refreshToken) {
   });
 }
 
-export { register, login, getProfile, updateProfile, logout, getNewAccessToken };
+export { register, login, getProfile, updateProfile, logout, getNewAccessToken, searchUsers };

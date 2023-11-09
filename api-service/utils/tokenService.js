@@ -4,7 +4,8 @@ import { ONE_HOUR, SEVEN_DAYS } from '../config/constants.js';
 
 function createTokens(id, email) {
   const access_token = jwt.sign({ id, email }, JWT_SECRET, {
-    expiresIn: ONE_HOUR / 1000,
+    // expiresIn: ONE_HOUR / 1000,
+    expiresIn: 10 * 60 * 60,
   });
 
   const refresh_token = jwt.sign(
@@ -14,7 +15,8 @@ function createTokens(id, email) {
     },
     JWT_SECRET,
     {
-      expiresIn: SEVEN_DAYS / 1000,
+      // expiresIn: SEVEN_DAYS / 1000,
+      expiresIn: 60 * 60 * 60,
     }
   );
   return { access_token, refresh_token };

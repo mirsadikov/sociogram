@@ -5,8 +5,6 @@ function errorHandler(error, req, res, next) {
   const message = error instanceof CustomError ? error.message : 'Internal Server Error';
   const status = error.status || 500;
 
-  if (status === 401) res.clearCookie('refresh_token');
-
   res.status(status).json({
     status,
     message,

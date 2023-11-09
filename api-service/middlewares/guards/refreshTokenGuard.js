@@ -17,6 +17,7 @@ const refreshTokenGuard = (req, res, next) => {
 
     next();
   } catch (err) {
+    res.clearCookie('refresh_token');
     next(new CustomError('Unauthorized', 401));
   }
 };

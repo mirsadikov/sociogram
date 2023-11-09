@@ -52,6 +52,8 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3000
+      - VITE_API_URL=http://api.localhost
+      - VITE_SOCKET_URL=http://socket.localhost
     depends_on:
       - api-service
       - socket-service

@@ -8,6 +8,7 @@ import {
   login,
   logout,
   register,
+  searchUsers,
 } from '../controllers/user.controller.js';
 import { getFollowers, getFollowing } from '../controllers/follows.controller.js';
 
@@ -21,5 +22,6 @@ router.post('/logout', accessTokenGuard, logout);
 router.post('/refresh', refreshTokenGuard, getNewAccessToken);
 router.get('/followers', accessTokenGuard, getFollowers);
 router.get('/following', accessTokenGuard, getFollowing);
+router.get('/search', accessTokenGuard, searchUsers);
 
 export default router;

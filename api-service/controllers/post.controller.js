@@ -137,7 +137,12 @@ async function getFeed(req, res, next) {
       include: {
         author: { select: { id: true, name: true, email: true } },
         _count: { select: { likes: true } },
+        likes: {
+          where: { user_id: req.user.id },
+          select: { user_id: true },
+        },
       },
+      orderBy: { created_at: 'desc' },
     });
 
     res.json({
@@ -145,7 +150,9 @@ async function getFeed(req, res, next) {
       posts: posts.map((post) => ({
         ...post,
         like_count: post._count.likes,
+        liked: post.likes.length > 0,
         _count: undefined,
+        likes: undefined,
       })),
     });
   } catch (error) {
