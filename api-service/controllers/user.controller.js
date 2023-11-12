@@ -100,7 +100,7 @@ async function getProfile(req, res, next) {
       },
     });
 
-    if (!user) throw new CustomError('User not found', 404);
+    if (!user) throw new CustomError('User not found', 401);
 
     res.json({
       ...user,
@@ -197,7 +197,7 @@ async function getNewAccessToken(req, res, next) {
 // @Private
 async function searchUsers(req, res, next) {
   try {
-    const { search } = req.query;
+    const { search } = req.body;
     const { id } = req.user;
 
     const users = await prisma.user.findMany({

@@ -13,7 +13,6 @@ const SignUp = React.lazy(() => import('../pages/sign-up'));
 const SignIn = React.lazy(() => import('../pages/sign-in'));
 const SingleChat = React.lazy(() => import('../pages/single-chat'));
 const Search = React.lazy(() => import('../pages/search'));
-const EmptyChat = React.lazy(() => import('../components/empty-chat'));
 
 const routes = createBrowserRouter([
   {
@@ -43,10 +42,6 @@ const routes = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <EmptyChat />,
-          },
-          {
-            path: ':id',
             element: <SingleChat />,
           },
         ],

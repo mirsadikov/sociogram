@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
 import DefaultProfile from '../images/default_profile.png';
+import { User } from '../types';
 
 type UserRowProps = {
-  user: any;
-  children: React.ReactNode;
+  user: User;
+  children?: React.ReactNode;
 };
 
 export default function UserRow({ user, children }: UserRowProps) {

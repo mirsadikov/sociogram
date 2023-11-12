@@ -2,11 +2,13 @@ import { Tooltip, Skeleton } from 'antd';
 import { NavLink } from 'react-router-dom';
 import { Bell, ChatDots, HomeAlt1, MoreHorizontalFill, Person, Search } from 'akar-icons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { logout } from '../store/slices/auth-slice';
 import { store } from '../store';
 import Logo from './logo';
 import httpClient from '../api/httpClient';
 import DefaultProfile from '../images/default_profile.png';
+import { User } from '../types';
+import { useEffect } from 'react';
+import { setProfile } from '../store/slices/auth-slice';
 
 const links = [
   {
@@ -42,7 +44,7 @@ function ProfileTooltip() {
   const handleLogout = async () => {
     queryClient.clear();
     await httpClient.post('/user/logout');
-    store.dispatch(logout());
+    store.dispatch({ type: 'logout' });
   };
 
   return (
@@ -55,13 +57,19 @@ function ProfileTooltip() {
 }
 
 export default function MainSidebar() {
-  const { data } = useQuery({
+  const { data } = useQuery<User>({
     queryKey: ['profile'],
     queryFn: async () => {
       const { data } = await httpClient.get('/user/profile');
       return data;
     },
   });
+
+  useEffect(() => {
+    if (data) {
+      store.dispatch(setProfile(data));
+    }
+  }, [data]);
 
   return (
     <aside className="h-screen border-r flex-1 max-w-[300px] border-r-slate-200 p-4 flex flex-col gap-6 sticky bottom-0 top-0">
@@ -70,7 +78,6 @@ export default function MainSidebar() {
         <ul className="flex flex-col gap-2">
           {links.map((link) => (
             <li key={link.name} className="text-xl">
-              {/*  */}
               <NavLink
                 to={link.path}
                 className={({ isActive }) =>

@@ -55,9 +55,8 @@ async function getOwnPosts(req, res, next) {
 // @Private
 async function updatePost(req, res, next) {
   try {
-    const id = req.params.id;
-
     const validator = new LIVR.Validator({
+      id: ['required', 'string', 'trim'],
       content: ['string', 'trim', 'required', { min_length: 1 }],
     });
 
@@ -65,7 +64,7 @@ async function updatePost(req, res, next) {
     if (!validData) throw new ValidationError(validator.getErrors());
 
     const post = await prisma.post.update({
-      where: { id, author_id: req.user.id },
+      where: { id: validData.id, author_id: req.user.id },
       data: {
         content: validData.content,
       },
@@ -80,11 +79,7 @@ async function updatePost(req, res, next) {
 // @Private
 async function deletePost(req, res, next) {
   try {
-    const validator = new LIVR.Validator({
-      id: ['string', 'trim', 'required'],
-    });
-
-    const validData = validator.validate(req.params);
+    const validData = validator.validate(req.body);
     if (!validData) throw new ValidationError(validator.getErrors());
 
     await prisma.post.delete({
@@ -100,10 +95,8 @@ async function deletePost(req, res, next) {
 // @Private
 async function getPost(req, res, next) {
   try {
-    const id = req.params.id;
-
     const post = await prisma.post.findUnique({
-      where: { id },
+      where: { id: req.body.id },
       include: { author: true, _count: { select: { likes: true } } },
     });
 
@@ -163,7 +156,7 @@ async function getFeed(req, res, next) {
 // @Private
 async function likePost(req, res, next) {
   try {
-    const id = req.params.id;
+    const id = req.body.id;
 
     const post = await prisma.post.findUnique({ where: { id } });
     if (!post) throw new CustomError('Post not found', 404);
@@ -183,7 +176,7 @@ async function likePost(req, res, next) {
 // @Private
 async function unlikePost(req, res, next) {
   try {
-    const id = req.params.id;
+    const id = req.body.id;
 
     const postLike = await prisma.postLike.findUnique({
       where: { post_id_user_id: { post_id: id, user_id: req.user.id } },

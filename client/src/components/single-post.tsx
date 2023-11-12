@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import DefaultProfile from '../images/default_profile.png';
-import { formatTime } from '../utils/time-formatter';
+import { formatTimeDiff } from '../utils/time-formatter';
 import { Button } from 'antd';
 import { HeartFilled, HeartTwoTone } from '@ant-design/icons';
 import { Post } from '../types';
@@ -24,7 +24,7 @@ export default function SinglePost({ post, toggleLike }: PostProps) {
           <div className="text-gray-500 ml-2">
             <span>{post.author.email}</span>
             <span className="mx-2 text-gray-500">·</span>
-            <span>{formatTime(post.created_at)}</span>
+            <span>{formatTimeDiff(post.created_at)}</span>
           </div>
         </div>
         <div className="mt-2 text-gray-700 whitespace-pre-wrap">{post.content}</div>

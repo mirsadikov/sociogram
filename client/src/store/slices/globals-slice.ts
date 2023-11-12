@@ -17,6 +17,11 @@ export const globalsSlice = createSlice({
       state.user_search = action.payload;
     },
   },
+  extraReducers(builder) {
+    builder.addCase('logout', (state) => {
+      state.user_search = '';
+    });
+  },
 });
 
 export const { setUserSearch } = globalsSlice.actions;

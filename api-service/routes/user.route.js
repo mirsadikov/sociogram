@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from '../myExpress.js';
 import accessTokenGuard from '../middlewares/guards/accessTokenGuard.js';
 import refreshTokenGuard from '../middlewares/guards/refreshTokenGuard.js';
 import {
@@ -22,6 +22,6 @@ router.post('/logout', accessTokenGuard, logout);
 router.post('/refresh', refreshTokenGuard, getNewAccessToken);
 router.get('/followers', accessTokenGuard, getFollowers);
 router.get('/following', accessTokenGuard, getFollowing);
-router.get('/search', accessTokenGuard, searchUsers);
+router.post('/search', accessTokenGuard, searchUsers);
 
 export default router;

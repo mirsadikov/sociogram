@@ -4,7 +4,7 @@ import CustomError from '../errors/CustomError.js';
 // @Private
 async function followUser(req, res, next) {
   try {
-    const id = req.params.id;
+    const id = req.body.id;
 
     const userToFollow = await prisma.user.findUnique({ where: { id } });
 
@@ -25,7 +25,7 @@ async function followUser(req, res, next) {
       },
     });
 
-    res.json({ message: `You are now following ${userToFollow.name}` });
+    res.json({ message: `You are now following ${userToFollow.name}`, id: userToFollow.id });
   } catch (error) {
     next(error);
   }
@@ -34,7 +34,7 @@ async function followUser(req, res, next) {
 // @Private
 async function unfollowUser(req, res, next) {
   try {
-    const id = req.params.id;
+    const id = req.body.id;
 
     const userToUnfollow = await prisma.user.findUnique({ where: { id } });
 
@@ -103,6 +103,14 @@ async function getFollowing(req, res, next) {
             name: true,
             email: true,
             bio: true,
+            chats: {
+              select: { id: true },
+              where: {
+                user_id: {
+                  equals: id,
+                },
+              },
+            },
           },
         },
       },
@@ -110,7 +118,10 @@ async function getFollowing(req, res, next) {
 
     res.json({
       count: following.length,
-      following: following.map((follow) => follow.following),
+      following: following.map((follow) => {
+        const { chats, ...following } = follow.following;
+        return { ...following, chat_id: chats[0]?.id };
+      }),
     });
   } catch (error) {
     next(error);

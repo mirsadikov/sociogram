@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from '../myExpress.js';
 import accessTokenGuard from '../middlewares/guards/accessTokenGuard.js';
 import {
   createPost,
@@ -15,11 +15,11 @@ const router = Router();
 
 router.post('/user', accessTokenGuard, createPost);
 router.get('/user', accessTokenGuard, getOwnPosts);
-router.put('/user/:id', accessTokenGuard, updatePost);
-router.delete('/user/:id', accessTokenGuard, deletePost);
+router.put('/user', accessTokenGuard, updatePost);
+router.delete('/user', accessTokenGuard, deletePost);
 router.get('/feed', accessTokenGuard, getFeed);
-router.get('/:id', accessTokenGuard, getPost);
-router.post('/like/:id', accessTokenGuard, likePost);
-router.delete('/like/:id', accessTokenGuard, unlikePost);
+router.get('/one', accessTokenGuard, getPost);
+router.post('/like', accessTokenGuard, likePost);
+router.post('/unlike', accessTokenGuard, unlikePost);
 
 export default router;

@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
 import { store } from '../store';
-import { getToken, login, logout } from '../store/slices/auth-slice';
+import { getToken, login } from '../store/slices/auth-slice';
 import toast from 'react-hot-toast';
 
 type ErrorResponse = {
@@ -59,7 +59,7 @@ async function resErrInterceptor(error: AxiosError<ErrorResponse>) {
 
     isRefreshing = refreshAccessToken().then((res) => {
       if ('error' in res) {
-        store.dispatch(logout());
+        store.dispatch({ type: 'logout' });
         httpClient.defaults.headers.common['X-Auth-Token'] = '';
         toast.error('Your session has expired. Please login again.');
 
@@ -104,3 +104,4 @@ httpClient.interceptors.request.use(reqInterceptor, reqErrInterceptor);
 httpClient.interceptors.response.use(resInterceptor, resErrInterceptor);
 
 export default httpClient;
+export { refreshAccessToken };

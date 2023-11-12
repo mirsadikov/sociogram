@@ -1,16 +1,21 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import {  Outlet, useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import Logo from '../components/logo';
 import { RootState } from '../store';
 import { useSelector } from 'react-redux';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import Loader from '../components/loader';
 
 export default function AuthLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const token = useSelector((state: RootState) => state.auth.access_token);
-  if (token) return <Navigate to="/" />;
+
+  useEffect(() => {
+    if (token) return navigate('/');
+  }
+  , [token]);
 
   return (
     <div className="h-screen bg-slate-50 flex items-center justify-center flex-col">

@@ -15,7 +15,6 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-
   return (
     <>
       <Provider store={store}>

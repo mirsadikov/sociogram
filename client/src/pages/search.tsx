@@ -9,6 +9,7 @@ import { setUserSearch } from '../store/slices/globals-slice';
 import { store } from '../store';
 import UserRow from '../components/user-row';
 import toast from 'react-hot-toast';
+import { setCurrentChat } from '../store/slices/chats-slice';
 
 export default function Search() {
   const prevSearch = store.getState().globals.user_search;
@@ -21,11 +22,7 @@ export default function Search() {
     queryKey: ['search', debouncedSearch],
     placeholderData: keepPreviousData,
     queryFn: async () => {
-      const { data } = await httpClient.get('/user/search', {
-        params: {
-          search: debouncedSearch,
-        },
-      });
+      const { data } = await httpClient.post('/user/search', { search: debouncedSearch });
 
       store.dispatch(setUserSearch(search));
       return data;
@@ -36,14 +33,22 @@ export default function Search() {
   const { mutate: follow } = useMutation({
     mutationKey: ['following'],
     mutationFn: async (id: string) => {
-      const { data } = await httpClient.post(`/follow/${id}`);
+      const { data } = await httpClient.post(`/follow`, { id });
 
       return data;
     },
     onSuccess(data) {
       toast.success(data.message);
-      queryClient.invalidateQueries({ queryKey: ['search', debouncedSearch] });
       queryClient.invalidateQueries({ queryKey: ['following'] });
+      // manually update the cache
+      queryClient.setQueryData(['search', debouncedSearch], (prev: any) => {
+        return {
+          ...prev,
+          users: prev.users.map((user: any) =>
+            user.id === data.id ? { ...user, is_following: true } : user
+          ),
+        };
+      });
     },
   });
 
@@ -52,6 +57,11 @@ export default function Search() {
     e.preventDefault();
 
     func();
+  };
+
+  const handleNavigate = (id: string) => {
+    store.dispatch(setCurrentChat({ receiver_id: id }));
+    navigate(`/chats`);
   };
 
   return (
@@ -91,7 +101,7 @@ export default function Search() {
                   <UserRow user={user}>
                     {user.is_following ? (
                       <ButtonSecandary
-                        onClick={(e) => prevent(e, () => navigate(`/chats/${user.id}`))}
+                        onClick={(e) => prevent(e, () => handleNavigate(user.id))}
                         className="">
                         Message
                       </ButtonSecandary>

@@ -11,7 +11,7 @@ datasource db {
 }
 
 model User {
-  id            String       @id @default(uuid())
+  id            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email         String       @unique
   name          String       @db.VarChar(64)
   bio           String?      @db.VarChar(256)
@@ -23,54 +23,58 @@ model User {
   followers     UserFollow[] @relation("Follower")
   following     UserFollow[] @relation("Following")
   liked_posts   PostLike[]
-  chats         UserChat[]
+  chats         UserChat[]   @relation("user_chat")
   messages      Message[]
+  senders_chats UserChat[]
 }
 
 model UserFollow {
-  id           String @id @default(uuid())
+  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   follower     User   @relation("Following", fields: [follower_id], references: [id])
-  following_id String
+  following_id String @db.Uuid
   following    User   @relation("Follower", fields: [following_id], references: [id])
-  follower_id  String
+  follower_id  String @db.Uuid
 
   @@unique([follower_id, following_id])
 }
 
 model Post {
-  id         String     @id @default(uuid())
+  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   content    String?
   author     User       @relation(fields: [author_id], references: [id])
-  author_id  String
+  author_id  String     @db.Uuid
   created_at DateTime   @default(now())
   likes      PostLike[]
 }
 
 model PostLike {
-  id       String   @id @default(uuid())
   post     Post     @relation(fields: [post_id], references: [id])
-  post_id  String
+  post_id  String   @db.Uuid
   user     User     @relation(fields: [user_id], references: [id])
-  user_id  String
+  user_id  String   @db.Uuid
   liked_at DateTime @default(now())
 
   @@unique([post_id, user_id])
 }
 
 model Chat {
-  id         String     @id @default(uuid())
+  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   created_at DateTime   @default(now())
   messages   Message[]
   users      UserChat[]
 }
 
 model UserChat {
-  id         String   @id @default(uuid())
-  user       User     @relation(fields: [user_id], references: [id])
-  user_id    String
-  chat       Chat     @relation(fields: [chat_id], references: [id])
-  chat_id    String
-  created_at DateTime @default(now())
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user        User     @relation("user_chat", fields: [user_id], references: [id])
+  user_id     String   @db.Uuid
+  chat        Chat     @relation(fields: [chat_id], references: [id])
+  chat_id     String   @db.Uuid
+  receiver    User     @relation(fields: [receiver_id], references: [id])
+  receiver_id String   @db.Uuid
+  created_at  DateTime @default(now())
+
+  @@unique([user_id, chat_id])
 }
 
 model Message {
@@ -78,7 +82,7 @@ model Message {
   content    String
   created_at DateTime @default(now())
   chat       Chat     @relation(fields: [chat_id], references: [id])
-  chat_id    String
+  chat_id    String   @db.Uuid
   author     User     @relation(fields: [author_id], references: [id])
-  author_id  String
+  author_id  String   @db.Uuid
 }
