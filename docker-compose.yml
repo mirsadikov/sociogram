@@ -27,6 +27,7 @@ services:
 
   nginx:
     image: nginx:alpine
+    restart: always
     ports:
       - 80:80
     volumes:
@@ -40,6 +41,7 @@ services:
 
   postgres:
     image: postgres:alpine
+    restart: always
     environment:
       POSTGRES_DB: sociogram
       POSTGRES_USER: postgres
@@ -58,6 +60,7 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile
+    restart: always
     volumes:
       - ./client:/app
       - /app/node_modules
@@ -76,6 +79,7 @@ services:
     build:
       context: ./api-service
       dockerfile: Dockerfile
+    restart: always
     volumes:
       - ./api-service:/app
       - /app/node_modules
@@ -96,6 +100,7 @@ services:
     build:
       context: ./socket-service
       dockerfile: Dockerfile
+    restart: always
     volumes:
       - ./socket-service:/app
       - /app/node_modules

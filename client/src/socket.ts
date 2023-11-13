@@ -15,7 +15,7 @@ socket.onAny((event, ...args) => {
 });
 
 socket.on('exception', (data) => {
-  toast.error(data.message || 'Something went wrong');
+  toast.error(typeof data.message === 'string' ? data.message : 'Something went wrong');
 });
 
 socket.on('error', (err) => {
