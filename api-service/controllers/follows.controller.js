@@ -34,7 +34,7 @@ async function followUser(req, res, next) {
 // @Private
 async function unfollowUser(req, res, next) {
   try {
-    const id = req.body.id;
+    const id = req.query.id;
 
     const userToUnfollow = await prisma.user.findUnique({ where: { id } });
 

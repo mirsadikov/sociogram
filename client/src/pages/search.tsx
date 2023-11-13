@@ -22,7 +22,7 @@ export default function Search() {
     queryKey: ['search', debouncedSearch],
     placeholderData: keepPreviousData,
     queryFn: async () => {
-      const { data } = await httpClient.post('/user/search', { search: debouncedSearch });
+      const { data } = await httpClient.get(`/user/search?search=${debouncedSearch}`);
 
       store.dispatch(setUserSearch(search));
       return data;
@@ -39,8 +39,7 @@ export default function Search() {
     },
     onSuccess(data) {
       toast.success(data.message);
-      queryClient.invalidateQueries({ queryKey: ['following'] });
-      // manually update the cache
+      queryClient.invalidateQueries({ queryKey: ['user', 'me'] });
       queryClient.setQueryData(['search', debouncedSearch], (prev: any) => {
         return {
           ...prev,
@@ -100,9 +99,7 @@ export default function Search() {
                   className="block p-4 px-10 cursor-pointer">
                   <UserRow user={user}>
                     {user.is_following ? (
-                      <ButtonSecandary
-                        onClick={(e) => prevent(e, () => handleNavigate(user.id))}
-                        className="">
+                      <ButtonSecandary onClick={(e) => prevent(e, () => handleNavigate(user.id))}>
                         Message
                       </ButtonSecandary>
                     ) : (

@@ -4,8 +4,9 @@ import MainSidebar from '../components/main-sidebar';
 import { RootState, store } from '../store';
 import { useSelector } from 'react-redux';
 import { socket, startListening, stopListening } from '../socket';
-import { login } from '../store/slices/auth-slice';
-import { refreshAccessToken } from '../api/httpClient';
+import { login, setProfile } from '../store/slices/auth-slice';
+import httpClient, { refreshAccessToken } from '../api/httpClient';
+import { useQuery } from '@tanstack/react-query';
 
 export default function RootLayout() {
   const token = useSelector((state: RootState) => state.auth.access_token);
@@ -36,6 +37,22 @@ export default function RootLayout() {
 
     return () => clearInterval(interval);
   }, []);
+
+  const { data } = useQuery({
+    queryKey: ['user', 'me'],
+    queryFn: async () => {
+      const { data } = await httpClient.get(`/user/profile`);
+
+      return data;
+    },
+    enabled: !!token,
+  });
+
+  useEffect(() => {
+    if (data) {
+      store.dispatch(setProfile(data));
+    }
+  }, [data]);
 
   return token ? (
     <div className="max-w-[1280px] flex w-full mx-auto">

@@ -1,26 +1,17 @@
-import { useQuery } from '@tanstack/react-query';
-import httpClient from '../api/httpClient';
 import Loader from './loader';
 import { ButtonSecandary } from './buttons';
 import { ChatBubble } from 'akar-icons';
 import { useNavigate } from 'react-router-dom';
 import UserRow from './user-row';
-import { store } from '../store';
+import { RootState, store } from '../store';
 import { setCurrentChat } from '../store/slices/chats-slice';
-import { User } from '../types';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
+import { useSelector } from 'react-redux';
 
 export default function FollowsSidebar() {
   const [animationParent] = useAutoAnimate();
   const navigate = useNavigate();
-  const { data, isFetching, isLoading } = useQuery({
-    queryKey: ['following'],
-    queryFn: async (): Promise<User[]> => {
-      const { data } = await httpClient.get('/user/following');
-
-      return data.following;
-    },
-  });
+  const following = useSelector((state: RootState) => state.auth.profile?.following?.list);
 
   const prevent = (e: React.MouseEvent<HTMLElement>, func: any) => {
     e.stopPropagation();
@@ -38,13 +29,13 @@ export default function FollowsSidebar() {
     <div className="p-6 sticky top-0">
       <h3 className="text-xl pl-2 font-bold">Following list</h3>
       <div className="py-4 w-full">
-        {isFetching && isLoading ? (
+        {!following ? (
           <div className="h-72 flex justify-center items-center">
             <Loader />
           </div>
-        ) : data && data.length ? (
+        ) : following && following.length ? (
           <ul ref={animationParent}>
-            {data?.map((user: any) => (
+            {following?.map((user: any) => (
               <li key={user.id} className="hover:bg-slate-100 rounded-full">
                 <div
                   className="p-3 cursor-pointer"

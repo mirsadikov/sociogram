@@ -20,6 +20,12 @@ type User = {
   avatar?: string;
   bio?: string;
   created_at: string;
+  followers?: {
+    list: User[];
+  };
+  following?: {
+    list: User[];
+  };
 };
 
 type Message = {

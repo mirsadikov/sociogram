@@ -1,8 +1,6 @@
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { useEffect, useState, useRef } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { User } from '../types';
 import UserRow from '../components/user-row';
 import { ButtonPrimary } from '../components/buttons';
 import { socket } from '../socket';
@@ -14,8 +12,7 @@ export default function SingleChat() {
   const [chat, setChat] = useState<any>();
   const [message, setMessage] = useState('');
   const { list, currentChat } = useSelector((state: RootState) => state.chats);
-  const queryClient = useQueryClient();
-  const profile = queryClient.getQueryData<User>(['profile']);
+  const profile = useSelector((state: RootState) => state.auth.profile);
 
   useEffect(() => {
     if (!currentChat || !list) return;
@@ -25,9 +22,7 @@ export default function SingleChat() {
     if (existingChat) {
       setChat({ ...existingChat });
     } else {
-      const user = queryClient
-        .getQueryData<User[]>(['following'])
-        ?.find((user) => user.id === currentChat.receiver_id);
+      const user = profile?.following?.list?.find((user) => user.id === currentChat.receiver_id);
       setChat({ receiver: user, new: true });
     }
 

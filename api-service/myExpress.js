@@ -1,4 +1,5 @@
 import http from 'node:http';
+import url from 'node:url';
 import formidable from 'formidable';
 
 const methods = ['get', 'post', 'put', 'delete'];
@@ -75,8 +76,10 @@ class App {
         res.clearCookie = clearCookie;
         res.json = sendJson;
 
+        const parsedUrl = url.parse(req.url, true);
+        req.query = parsedUrl.query;
         const method = req.method.toLowerCase();
-        const path = req.url.split('?')[0];
+        const path = parsedUrl.pathname;
         const subPaths = path.split('/').map((part) => `/${part}`);
         subPaths.shift();
         if (subPaths[subPaths.length - 1] === '/' && subPaths.length > 1) subPaths.pop();
@@ -89,7 +92,7 @@ class App {
           return route.sub[part];
         }, this.routes);
 
-        if (!route[method] && route.sub) route = route.sub['/'];
+        if (route && !route[method] && route.sub) route = route.sub['/'];
 
         if (!route || !route[method]) {
           res.statusCode = 404;

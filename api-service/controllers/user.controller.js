@@ -84,28 +84,24 @@ async function login(req, res, next) {
 // @Private
 async function getProfile(req, res, next) {
   try {
-    const { id, email } = req.user;
+    const { id } = req.user;
 
-    const user = await prisma.user.findUnique({
-      where: { id, email },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        bio: true,
-        created_at: true,
-        _count: {
-          select: { followers: true, following: true },
-        },
-      },
-    });
+    const user = await getUser(id);
 
     if (!user) throw new CustomError('User not found', 401);
 
+    console.log(user);
+
     res.json({
       ...user,
-      followers: user._count.followers,
-      following: user._count.following,
+      followers: {
+        count: user._count.followers,
+        list: [...user.followers.map((follower) => follower.follower)],
+      },
+      following: {
+        count: user._count.following,
+        list: [...user.following.map((following) => following.following)],
+      },
       _count: undefined,
     });
   } catch (error) {
@@ -197,7 +193,7 @@ async function getNewAccessToken(req, res, next) {
 // @Private
 async function searchUsers(req, res, next) {
   try {
-    const { search } = req.body;
+    const { search } = req.query;
     const { id } = req.user;
 
     const users = await prisma.user.findMany({
@@ -241,6 +237,32 @@ async function searchUsers(req, res, next) {
   }
 }
 
+// @Public
+async function getUserById(req, res, next) {
+  try {
+    const { id } = req.query;
+
+    const user = await getUser(id);
+
+    if (!user) throw new CustomError('User not found', 404);
+
+    res.json({
+      ...user,
+      followers: {
+        count: user._count.followers,
+        list: [...user.followers.map((follower) => follower.follower)],
+      },
+      following: {
+        count: user._count.following,
+        list: [...user.following.map((following) => following.following)],
+      },
+      _count: undefined,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 // @Helper
 async function updateRefreshToken(id, refreshToken) {
   const hashedRefreshToken = await argon.hash(refreshToken);
@@ -250,4 +272,53 @@ async function updateRefreshToken(id, refreshToken) {
   });
 }
 
-export { register, login, getProfile, updateProfile, logout, getNewAccessToken, searchUsers };
+function getUser(id) {
+  return prisma.user.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      bio: true,
+      created_at: true,
+      posts: {
+        include: {
+          _count: { select: { likes: true } },
+        },
+      },
+      followers: {
+        select: {
+          id: true,
+          follower: {
+            select: { id: true, name: true, email: true },
+          },
+        },
+      },
+      following: {
+        select: {
+          id: true,
+          following: {
+            select: { id: true, name: true, email: true },
+          },
+        },
+      },
+      _count: {
+        select: {
+          followers: true,
+          following: true,
+        },
+      },
+    },
+  });
+}
+
+export {
+  register,
+  login,
+  getProfile,
+  updateProfile,
+  logout,
+  getNewAccessToken,
+  searchUsers,
+  getUserById,
+};
