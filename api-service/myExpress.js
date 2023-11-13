@@ -83,11 +83,13 @@ class App {
 
         const middlewares = [];
 
-        const route = subPaths.reduce((route, part) => {
+        let route = subPaths.reduce((route, part) => {
           if (!route || !route.sub) return;
           middlewares.push(...route.middleware);
           return route.sub[part];
         }, this.routes);
+
+        if (!route[method] && route.sub) route = route.sub['/'];
 
         if (!route || !route[method]) {
           res.statusCode = 404;

@@ -7,4 +7,4 @@ const router = Router();
 router.post('/', accessTokenGuard, followUser);
 router.delete('/', accessTokenGuard, unfollowUser);
 
-export default router;
+export default router; 

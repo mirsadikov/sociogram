@@ -5,7 +5,8 @@ import { IoAdapter } from '@nestjs/platform-socket.io';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useWebSocketAdapter(new IoAdapter(app));
-  await app.listen(3003);
-  console.log(`Server listening on port ${3003}`);
+  app.enableCors();
+  await app.listen(process.env.PORT);
+  console.log(`Server listening on port ${process.env.PORT}`);
 }
 bootstrap();

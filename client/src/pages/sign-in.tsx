@@ -59,7 +59,7 @@ export default function SignIn() {
             Don't have an account?
           </Link>
           <Form.Item>
-            <ButtonPrimary htmlType="submit" className="mt-4 " type="primary" loading={isPending}>
+            <ButtonPrimary htmlType="submit" className="mt-4 " loading={isPending}>
               Login
             </ButtonPrimary>
           </Form.Item>

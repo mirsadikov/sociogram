@@ -80,7 +80,7 @@ export default function SignUp() {
             Already have an account?
           </Link>
           <Form.Item>
-            <ButtonPrimary htmlType="submit" className="mt-4 " type="primary" loading={isPending}>
+            <ButtonPrimary htmlType="submit" className="mt-4 " loading={isPending}>
               Register
             </ButtonPrimary>
           </Form.Item>
