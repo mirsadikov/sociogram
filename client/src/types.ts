@@ -50,4 +50,10 @@ type NewMessageRes = {
   sender: User;
 };
 
-export type { Post, User, Message, Chat, NewMessageRes };
+type NewLikeRes = {
+  post_id: string;
+  receiver_id: string;
+  sender: User;
+};
+
+export type { Post, User, Message, Chat, NewMessageRes, NewLikeRes };

@@ -90,8 +90,6 @@ async function getProfile(req, res, next) {
 
     if (!user) throw new CustomError('User not found', 401);
 
-    console.log(user);
-
     res.json({
       ...user,
       followers: {

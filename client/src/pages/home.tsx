@@ -16,7 +16,6 @@ export default function Home() {
       toast.success('Post created');
     },
     mutationFn: async () => {
-      console.log(content);
       const { data } = await httpClient.post('/post/user', { content });
 
       return data;

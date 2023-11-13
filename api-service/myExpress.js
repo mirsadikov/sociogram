@@ -1,6 +1,7 @@
 import http from 'node:http';
 import url from 'node:url';
 import formidable from 'formidable';
+import { FRONTEND_URL } from './config/secrets.js';
 
 const methods = ['get', 'post', 'put', 'delete'];
 
@@ -58,7 +59,7 @@ class App {
 
   listen(port, cb) {
     const defaultHandler = async (req, res) => {
-      res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
+      res.setHeader('Access-Control-Allow-Origin', FRONTEND_URL);
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-auth-token');
       res.setHeader('Access-Control-Allow-Credentials', true);

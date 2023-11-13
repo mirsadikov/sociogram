@@ -2,6 +2,7 @@ import LIVR from 'livr';
 import prisma from '../prisma/client.js';
 import ValidationError from '../errors/ValidationError.js';
 import CustomError from '../errors/CustomError.js';
+import { stream } from '../kafka/producer.js';
 
 // @Private
 async function createPost(req, res, next) {
@@ -165,6 +166,22 @@ async function likePost(req, res, next) {
       where: { post_id_user_id: { post_id: id, user_id: req.user.id } },
       create: { post_id: id, user_id: req.user.id },
       update: {},
+    });
+
+    const sender = await prisma.user.findUnique({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+      },
+      where: { id: req.user.id },
+    });
+
+    stream({
+      type: 'like',
+      sender,
+      receiver_id: post.author_id,
+      created_at: like.liked_at,
     });
 
     res.json(like);

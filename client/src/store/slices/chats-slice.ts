@@ -50,8 +50,6 @@ export const chatsSlice = createSlice({
 
         return chat;
       });
-
-      console.log(state.list);
     },
 
     addNewMessage: (state, action: PayloadAction<NewMessageRes>) => {

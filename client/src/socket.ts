@@ -3,15 +3,12 @@ import { io } from 'socket.io-client';
 import { store } from './store';
 import { addNewChat, addNewMessage, setChatMessages, setChats } from './store/slices/chats-slice';
 import * as notification from './utils/notification';
+import { setNotifications } from './store/slices/globals-slice';
 
 const URL = import.meta.env.VITE_SOCKET_URL as string;
 
 const socket = io(URL, {
   autoConnect: false,
-});
-
-socket.onAny((event, ...args) => {
-  console.log(event, args);
 });
 
 socket.on('exception', (data) => {
@@ -47,6 +44,11 @@ function startListening() {
   socket.on('new-message', (message) => {
     notification.newMessage(message);
     store.dispatch(addNewMessage(message));
+  });
+
+  socket.on('notification', (data) => {
+    notification.newNotification(data);
+    store.dispatch(setNotifications(data));
   });
 }
 

@@ -1,8 +1,17 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
+import { User } from '../../types';
+
+type Notification = {
+  content: string;
+  sender: User
+  created_at: string;
+  type: string;
+}
 
 type GlobalsState = {
   user_search: string;
+  notifications?: Notification[];
 };
 
 const initialState: GlobalsState = {
@@ -16,6 +25,9 @@ export const globalsSlice = createSlice({
     setUserSearch: (state, action: PayloadAction<string>) => {
       state.user_search = action.payload;
     },
+    setNotifications: (state, action: PayloadAction<Notification>) => {
+      state.notifications = [action.payload, ...(state.notifications || [])];
+    }
   },
   extraReducers(builder) {
     builder.addCase('logout', (state) => {
@@ -24,6 +36,6 @@ export const globalsSlice = createSlice({
   },
 });
 
-export const { setUserSearch } = globalsSlice.actions;
+export const { setUserSearch, setNotifications } = globalsSlice.actions;
 
 export default globalsSlice.reducer;
